@@ -1,16 +1,11 @@
-"use client";
-
 import Layout from "@/components/Layout";
 
-const ClientPage: React.FC = () => {
+export default function Loading() {
   return (
     <Layout sideScreenBody={(
       <></>
-    )}
-    >
-      <></>
+    )}>
+      <div className="w-full h-full bg-zinc-50"></div>
     </Layout>
-  );
+  )
 }
-
-export default ClientPage;

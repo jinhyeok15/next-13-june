@@ -12,21 +12,16 @@ export const useWebSocket = <ResponseData>(url: string): {
   const [payload, setPayload] = useState<ApiPayload<ResponseData>>({ status: LOADING });
 
   useEffect(() => {
-    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_PROTOCOL_TYPE}://${process.env.NEXT_PUBLIC_SERVER_URL}${url}`);
+    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_PROTOCOL_TYPE}://${process.env.NEXT_PUBLIC_SERVER_HOST}${url}`);
 
-    socket.onopen = () => {
-      console.log('WebSocket connection opened');
-    }
+    socket.onopen = () => {}
 
     socket.onmessage = (event) => {
       const data: ApiPayload<ResponseData> = JSON.parse(event.data);
       setPayload(data);
-      console.log('WebSocket message received:', event.data);
     }
 
-    socket.onclose = () => {
-      console.log('WebSocket connection closed');
-    }
+    socket.onclose = () => {}
 
     socketRef.current = socket;
 
@@ -36,11 +31,11 @@ export const useWebSocket = <ResponseData>(url: string): {
   }, [payload]);
 
   const clear = useCallback(() => {
-    setPayload({ status: LOADING })
+    setPayload({ status: LOADING });
   }, [setPayload]);
 
   const sendMessage = useCallback((message: string) => {
-    socketRef.current?.send(message)
+    socketRef.current?.send(message);
   }, []);
 
   return {
@@ -48,4 +43,18 @@ export const useWebSocket = <ResponseData>(url: string): {
     sendMessage,
     clear
   }
+}
+
+interface MessageDataOption {
+  key?: string | number,
+  token?: string
+}
+
+export const toMessage = <T>(method: 'update' | 'create' | 'delete', data: T, option?: MessageDataOption) => {
+  return JSON.stringify({
+    data: JSON.stringify(data),
+    key: option?.key,
+    authorization: `Token ${option?.token}`,
+    method: method
+  });
 }

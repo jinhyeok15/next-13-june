@@ -12,6 +12,7 @@ import { OK, CREATED, AttemptLimitOver } from "@/api/status";
 import Info from "../Info";
 import { LoginLayout } from "./LoginLayout";
 import clsx from "@/utils/clsx.util";
+import { getCurrentTime } from "@/utils";
 
 interface AuthFormProps {
   sessionId: string;
@@ -26,15 +27,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ sessionId, email }) => {
   const [loading, setLoading] = useState(false);
   const [isValid, setIsValid] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
     setLoading(true);
     const authPayload = await fetchPostAuthVerificationApi({
       id: sessionId,
       email: email,
       emailCode: value,
-      currentTime: Math.round(Date.now() / 1000)
+      currentTime: getCurrentTime()
     });
 
     if (authPayload.status === OK) {
@@ -86,7 +87,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ sessionId, email }) => {
           {loading ? 'loading...' : 'Send'}
         </button>
       </form>
-      <Info text={'Verification code is invalid'} trigger={error}></Info>
+      <Info text={'Verification code is invalid'} trigger={error} className="mt-2"></Info>
     </LoginLayout>
   );
 }

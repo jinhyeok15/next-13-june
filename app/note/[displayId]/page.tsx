@@ -4,9 +4,9 @@ import { redirect, notFound } from 'next/navigation';
 import { fetchPostAuthTokenApi } from '@/api/users.api';
 import { fetchGetNotesApi, fetchGetNoteByDisplayIdApi } from '@/api/notes.api';
 import { NoteEntity, NoteSummaryEntity } from '@/models/notes.model';
-import { OK, NoteDoesNotExist } from '@/api/status';
+import { OK, DatabaseError, NoteDoesNotExist } from '@/api/status';
 import { ApiPayload } from '@/utils/types.util';
-import { AUTH_TOKEN_KEY } from '@/constants/auth.constant';
+import { AUTH_TOKEN_KEY } from '@/constants/users.constant';
 
 import ClientPage from './page.client';
 
@@ -30,7 +30,8 @@ const NoteSideScreenPage = async ({ params }: { params: { displayId: string } })
     name: '',
     offset: 0
   }, token);
-  if (payload.status !== OK) { throw Error(payload.status); }
+  if (payload.status === NoteDoesNotExist) { notFound(); }
+  if (payload.status === DatabaseError) { throw Error(payload.status); }
   const noteItems: NoteSummaryEntity[] = payload.data!;
 
   const notePayload: ApiPayload<NoteEntity> = await fetchGetNoteByDisplayIdApi(params.displayId as string, token);

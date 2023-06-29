@@ -9,6 +9,7 @@ import { OK } from "@/api/status";
 import Info from "../Info";
 import { LoginLayout } from "./LoginLayout";
 import clsx from "@/utils/clsx.util";
+import { getCurrentTime } from "@/utils";
 
 const EmailForm: React.FC = () => {
   const router = useRouter();
@@ -18,12 +19,12 @@ const EmailForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isValid, setIsValid] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
     setLoading(true);
     const payload = await fetchPostAuthEmailApi({
-      at: Math.round(Date.now() / 1000),
+      at: getCurrentTime(),
       email: value
     });
 
@@ -62,7 +63,7 @@ const EmailForm: React.FC = () => {
           {loading ? 'loading...' : 'Send'}
         </button>
       </form>
-      <Info text={'Email is invalid'} trigger={error}></Info>
+      <Info text={'Email is invalid'} trigger={error} className="mt-2"></Info>
     </LoginLayout>
   );
 }

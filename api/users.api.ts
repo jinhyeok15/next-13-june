@@ -1,4 +1,4 @@
-import { Axios, AxiosWithJwt, getApiStatus } from "@/utils/http.util";
+import { Axios, AxiosWithJwt, getApiErrorPayload } from "@/utils/http.util";
 import qs from "qs";
 
 import { 
@@ -9,7 +9,8 @@ import {
 } from "./data/users";
 import {
   AuthTokenEntity,
-  AuthSessionEntity
+  AuthSessionEntity,
+  UserEntity
 } from "@/models/users.model";
 import { TRAILING_SLASH } from "@/constants/common.constant";
 import {
@@ -27,6 +28,21 @@ import {
 } from "./status";
 import { ApiPayload, ErrorDetail } from "@/utils/types.util";
 
+export const fetchGetUserMeApi = async (token: string): Promise<ApiPayload<UserEntity>> => {
+  try {
+    const res = await AxiosWithJwt(token)
+      .get<ApiPayload<UserEntity> | ErrorDetail>(`users/me${TRAILING_SLASH}`);
+    return res.data as ApiPayload<UserEntity>;
+  } catch (err: unknown) {
+    return getApiErrorPayload<UserEntity>(err, [
+      {
+        statusCode: 401,
+        types: [UserInvalid]
+      }
+    ])
+  }
+}
+
 export const fetchPostAuthTokenApi = async (data: AuthTokenData): Promise<ApiPayload<AuthTokenEntity>> => {
   try {
     const res = await Axios({'Cache-Control': 'public, max-age=1800'})
@@ -34,7 +50,7 @@ export const fetchPostAuthTokenApi = async (data: AuthTokenData): Promise<ApiPay
     const resData = res.data as ApiPayload<AuthTokenEntity>;
     return resData;
   } catch (err: unknown) {
-    return getApiStatus<AuthTokenEntity>(err, [
+    return getApiErrorPayload<AuthTokenEntity>(err, [
       {
         statusCode: 400,
         types: [RefreshTokenExpired, RefreshTokenRequired]
@@ -54,7 +70,7 @@ export const fetchPostAuthEmailApi = async (data: AuthEmailData): Promise<ApiPay
     const resData = res.data as ApiPayload<AuthSessionEntity>;
     return resData;
   } catch (err: unknown) {
-    return getApiStatus<AuthSessionEntity>(err, [
+    return getApiErrorPayload<AuthSessionEntity>(err, [
       {
         statusCode: 400,
         types: [EmailAddrValidationError]
@@ -76,7 +92,7 @@ export const fetchPostAuthVerificationApi = async (data: AuthVerificationData): 
       status: OK
     }
   } catch (err: unknown) {
-    return getApiStatus<null>(err, [
+    return getApiErrorPayload<null>(err, [
       {
         statusCode: 400,
         types: [AttemptLimitOver, AuthSessionExpired]
@@ -109,7 +125,7 @@ export const fetchPostUsersApi = async (data: UserData): Promise<ApiPayload<toke
     const resData = res.data as ApiPayload<tokens>;
     return resData;
   } catch (err: unknown) {
-    return getApiStatus<tokens>(err, [
+    return getApiErrorPayload<tokens>(err, [
       {
         statusCode: 500,
         types: [DatabaseError]

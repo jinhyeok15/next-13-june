@@ -1,10 +1,10 @@
 "use client";
 
-import { useContext } from "react";
+import { useContext, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 
-import { NoteAppContext } from "@/contexts/apps.context";
+import { AppContext, NoteAppContext } from "@/contexts/apps";
 import { NoteData } from "@/api/data/notes";
 import { StatusChoice } from "@/utils/enums.util";
 
@@ -14,13 +14,14 @@ import AddIcon from '@mui/icons-material/Add';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 interface SideScreenProps extends React.PropsWithChildren {}
 
 const SideScreen: React.FC<SideScreenProps> = (props) => {
   return (
     <div>
-      <div className="relative w-[320px] h-full bg-white">
+      <div className="relative w-[360px] sm:w-[320px] h-full bg-white">
         <Header className="pl-4 pr-6 border-b"></Header>
         <div className="w-full h-full pt-20 pb-28">
           {props.children}
@@ -42,7 +43,7 @@ const Header = (props: {
         "absolute top-0 w-full flex flex-row justify-between items-center py-4"
       )
     }>
-      <Image alt='logo' src={KnockLogo} />
+      <Image alt='logo' src={KnockLogo} priority={true} />
       {/* <MenuIcon className="cursor-pointer hover:text-etc" /> */}
     </div>
   )
@@ -55,6 +56,9 @@ const Navigator = (props: {
   const pathname = usePathname();
 
   const { items, addItem } = useContext(NoteAppContext);
+  const { user } = useContext(AppContext);
+
+  const [profileHover, setProfileHover] = useState<boolean>(false);
 
   enum NavChoice {
     NOTE=1,
@@ -77,7 +81,14 @@ const Navigator = (props: {
     }
   }
 
-  const handleClick = (choice: NavChoice) => {
+  const handleClick = useCallback((choice: NavChoice) => {
+    if (pathname === '/tutorial') {
+      if (choice === NavChoice.MY) {
+        router.push('/login');
+      }
+      return;
+    }
+    
     switch (choice) {
       case NavChoice.NOTE:
         if (!navPath.note.re.exec(pathname))
@@ -93,11 +104,10 @@ const Navigator = (props: {
         }
         break
       case NavChoice.MY:
-        if (!navPath.my.re.exec(pathname))
-          window.location.replace(navPath.my.path);
+        
         break
     } 
-  }
+  }, [pathname, items]);
 
   return (
     <div className={
@@ -115,11 +125,48 @@ const Navigator = (props: {
           className='hover:text-black text-etc'
         ></AddIcon>
       </button>
-      <button onClick={()=>handleClick(NavChoice.MY)}>
-        <AccountCircleIcon
-          className={`${navPath.my.re.exec(pathname) ? '' : 'text-etc'} hover:text-black`}
-        ></AccountCircleIcon>
-      </button>
+      <div className="relative flex flex-col items-center"
+        onMouseOut={() => setProfileHover(false)}
+        onMouseOver={() => setProfileHover(true)}
+      >
+        <button
+          onClick={()=>{
+            handleClick(NavChoice.MY);
+          }}
+        >
+          <AccountCircleIcon
+            className='hover:text-black text-etc'
+          ></AccountCircleIcon>
+        </button>
+        {
+          (pathname !== '/tutorial') ? profileHover && (
+            <div className="absolute flex flex-row items-center space-x-1 bottom-6 px-2 bg-zinc-100 rounded-md hover:cursor-default">
+              <div>
+                <p className="text-xs">{ user?.username }</p>
+              </div>
+              <button className="mb-1" onClick={(e) => {
+                e.stopPropagation();
+                router.push('/note/modal');
+              }}>
+                <LogoutIcon className="hover:text-blue-500"
+                  style={{
+                    fontSize: 14
+                  }}
+                ></LogoutIcon>
+              </button>
+            </div>
+          ) : (
+            <div className="absolute bottom-6 bg-knock-main rounded-md hover:cursor-default text-white bounce">
+              <button className="mb-1 py-1 w-28" onClick={(e) => {
+                e.stopPropagation();
+                router.push('/login');
+              }}>
+                Login here!
+              </button>
+            </div>
+          )
+        }
+      </div>
     </div>
   );
 }

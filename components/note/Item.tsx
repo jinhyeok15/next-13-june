@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useContext, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
-import { NoteAppContext } from "@/contexts/apps.context";
+import { NoteAppContext } from "@/contexts/apps";
 import { NoteSummaryEntity } from "@/models/notes.model";
 
 import clsx from "@/utils/clsx.util";
@@ -17,14 +17,18 @@ interface ItemProps {
 
 const Item: React.FC<ItemProps> = ({ value, displayId }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const { removeItem } = useContext(NoteAppContext);
 
   const [deleteSession, setDeleteSession] = useState<boolean>(false);
+  const [removed, setRemoved] = useState<boolean>(false);
 
-  return (
+  return !removed ? (
     <li>
       <div
         onClick={() => {
+          if (pathname === '/tutorial') return;
+
           displayId !== value.displayId &&
             router.push(`/note/${value.displayId}`)
         }}
@@ -39,8 +43,9 @@ const Item: React.FC<ItemProps> = ({ value, displayId }) => {
             <p className="text-lg font-light">{value.name}</p> :
             <div className="flex items-center bg-red-200 px-2 text-center rounded-sm hover:opacity-70"
               onClick={() => {
-                removeItem(value.displayId)
-                setDeleteSession(false)
+                removeItem(value.displayId);
+                setDeleteSession(false);
+                setRemoved(true);
               }}
             >
               <p className="text-red-500">Delete</p>
@@ -48,18 +53,26 @@ const Item: React.FC<ItemProps> = ({ value, displayId }) => {
         }
         {
           displayId === value.displayId && (!deleteSession ? (
-            <DeleteIcon className="w-5 h-5 hover:text-etc"
+            <DeleteIcon className="hover:text-etc"
               onClick={() => { setDeleteSession(true) }}
+              style={{
+                width: 20,
+                height: 20
+              }}
             ></DeleteIcon>
           ) : (
-            <CloseIcon className="w-5 h-5 hover:text-etc"
+            <CloseIcon className="hover:text-etc"
               onClick={() => { setDeleteSession(false) }}
+              style={{
+                width: 20,
+                height: 20
+              }}
             ></CloseIcon>
           ))
         }
       </div>
     </li>
-  );
+  ) : <></>;
 }
 
 export default Item;

@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useContext } from "react";
 
-import { NoteContext } from "@/contexts/note.context";
-import { NoteStatusEnum } from "@/constants/note.constant";
+import { NoteContext } from "@/contexts/components/note.context";
+import { NoteStatusEnum } from "@/constants/notes.constant";
 
 import ArrowCursorIcon from '@/components/svg/ArrowCursorIcon';
 import KeywordInitialIcon from '@/components/svg/KeywordInitialIcon';
@@ -36,8 +36,8 @@ const Toolbar: React.FC<ToolbarProps> = ({ onCreateKeyword }) => {
         inActiveChildClassName="fill-black"
         icon={ArrowCursorIcon}
         setFocus={(status: NoteStatusEnum) => {
-          setCursor(Label.ArrowCursor)
-          setNoteStatus!(status)
+          setCursor(Label.ArrowCursor);
+          setNoteStatus!(status);
         }}
         label={Label.ArrowCursor}
         cursor={cursor}
@@ -47,20 +47,20 @@ const Toolbar: React.FC<ToolbarProps> = ({ onCreateKeyword }) => {
         inActiveChildClassName="fill-black"
         icon={KeywordInitialIcon}
         setFocus={(status: NoteStatusEnum) => {
-          setCursor(Label.KeywordInitial)
-          setNoteStatus!(status)
+          setCursor(Label.KeywordInitial);
+          setNoteStatus!(status);
         }}
         label={Label.KeywordInitial}
         cursor={cursor}
         onCreateKeyword={onCreateKeyword}
       ></Button>
-      <Button
+      {/* <Button
         activeChildClassName="text-knock-main"
         childClassName=""
         icon={CallMadeIcon}
         setFocus={(status: NoteStatusEnum) => {
-          setCursor(Label.Arrow)
-          setNoteStatus!(status)
+          setCursor(Label.Arrow);
+          setNoteStatus!(status);
         }}
         label={Label.Arrow}
         cursor={cursor}
@@ -70,8 +70,8 @@ const Toolbar: React.FC<ToolbarProps> = ({ onCreateKeyword }) => {
         childClassName="stroke-2 stroke-black"
         icon={RelationLineIcon}
         setFocus={(status: NoteStatusEnum) => {
-          setCursor(Label.Line)
-          setNoteStatus!(status)
+          setCursor(Label.Line);
+          setNoteStatus!(status);
         }}
         label={Label.Line}
         cursor={cursor}
@@ -81,12 +81,12 @@ const Toolbar: React.FC<ToolbarProps> = ({ onCreateKeyword }) => {
         childClassName="stroke-1 stroke-black"
         icon={FragmentLineIcon}
         setFocus={(status: NoteStatusEnum) => {
-          setCursor(Label.FragmentLine)
-          setNoteStatus!(status)
+          setCursor(Label.FragmentLine);
+          setNoteStatus!(status);
         }}
         label={Label.FragmentLine}
         cursor={cursor}
-      ></Button>
+      ></Button> */}
     </div>
   );
 }
@@ -115,10 +115,10 @@ const Button: React.FC<ButtonProps> = (props) => {
   }, [cursor, label, hover]);
 
   useEffect(() => {
-    if ((noteStatus === NoteStatusEnum.EXIT || noteStatus === NoteStatusEnum.TITLEMOD) && label === Label.ArrowCursor) {
+    if ((noteStatus === NoteStatusEnum.EXIT || noteStatus === NoteStatusEnum.TITLEMOD || noteStatus === NoteStatusEnum.KEYMOD) && label === Label.ArrowCursor) {
       setFocus(noteStatus);
     }
-    else if ((noteStatus === NoteStatusEnum.KEYMOD || noteStatus === NoteStatusEnum.KEYADD) && label === Label.KeywordInitial) {
+    else if ((noteStatus === NoteStatusEnum.KEYADD) && label === Label.KeywordInitial) {
       setFocus(noteStatus);
     }
   }, [noteStatus, label]);
@@ -134,20 +134,20 @@ const Button: React.FC<ButtonProps> = (props) => {
       onMouseLeave={() => { setHover(false) }}
       onClick={() => {
         if (label === Label.ArrowCursor) {
-          setFocus(NoteStatusEnum.EXIT)
+          setFocus(NoteStatusEnum.EXIT);
         }
         else if (label === Label.KeywordInitial) {
-          setFocus(NoteStatusEnum.KEYADD)
-          props.onCreateKeyword!()
+          setFocus(NoteStatusEnum.KEYADD);
+          props.onCreateKeyword!();
         }
         else if (label === Label.Arrow) {
-          setFocus(NoteStatusEnum.REL)
+          setFocus(NoteStatusEnum.REL);
         }
         else if (label === Label.Line) {
-          setFocus(NoteStatusEnum.REL)
+          setFocus(NoteStatusEnum.REL);
         }
         else if (label === Label.FragmentLine) {
-          setFocus(NoteStatusEnum.REL)
+          setFocus(NoteStatusEnum.REL);
         }
       }}
     >

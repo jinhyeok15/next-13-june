@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useCallback, useContext, useState, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
-import { NoteAppContext } from "@/contexts/apps.context";
+import { NoteAppContext } from "@/contexts/apps";
 
 import clsx from "@/utils/clsx.util";
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -38,7 +38,7 @@ const NoteList: React.FC<NoteListProps> = ({ displayId }) => {
             className={clsx(
               "list",
               showScrollbar ? "scrollbar-visible" : "",
-              "h-full pt-2 pl-2 pr-1"
+              "h-full pt-2 pl-3 pr-1"
             )}
           >
             {
@@ -51,18 +51,15 @@ const NoteList: React.FC<NoteListProps> = ({ displayId }) => {
                 <Item value={value} displayId={displayId as string} key={index} />
               )) 
             }
-            <div className={`w-full py-3 text-center cursor-pointer hover:bg-zinc-50 hover:shadow-sm`}
-              onClick={() => {
-                if (!isLast)
-                  nextPage()
-              }}
-            >
-              {
-                !isLast && (
+            {
+              !isLast && (
+                <div className={`w-full py-3 text-center cursor-pointer hover:bg-zinc-50 hover:shadow-sm`}
+                  onClick={() => { nextPage() }}
+                >  
                   <p className="text-sm text-knock-sub">Next</p>
-                )
-              }
-            </div>
+                </div>
+              )
+            }
           </ul>
         ) : <div className="flex items-center justify-center h-full pt-2 pl-2 pr-1">loading...</div>
       }
@@ -71,6 +68,8 @@ const NoteList: React.FC<NoteListProps> = ({ displayId }) => {
 }
 
 const SearchBar = (): JSX.Element => {
+  const pathname = usePathname();
+
   const [name, setName] = useState<string>('');
   const { search } = useContext(NoteAppContext);
 
@@ -84,18 +83,34 @@ const SearchBar = (): JSX.Element => {
 
   const handleClear = () => {
     if (inputRef.current) {
-      inputRef.current.value = ''
-      setName('')
-      search('')
+      inputRef.current.value = '';
+      setName('');
+      search('');
     }
   }
 
   return (
     <div className="flex flex-row">
-      <input className="w-full border drop-shadow mx-2 px-2 py-1 focus:outline-none" value={name} type="text" onChange={handleSearchChange} ref={inputRef} />
+      <input className="w-full border drop-shadow mx-2 px-2 py-1 focus:outline-none" value={name} type="text" onChange={handleSearchChange} ref={inputRef} readOnly={pathname === '/tutorial'} />
       <div className="relative right-10 top-2 h-full cursor-pointer" onClick={handleClear}>
-        <CancelIcon className="absolute top-0 left-0 w-4 h-4 text-etc z-20"></CancelIcon>
-        <CircleIcon className="absolute top-0 left-0 w-4 h-4 z-10"></CircleIcon>
+        <CancelIcon className="text-etc z-20"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: '16px',
+            height: '16px'
+          }}
+        ></CancelIcon>
+        <CircleIcon className="z-10"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: '16px',
+            height: '16px'
+          }}
+        ></CircleIcon>
       </div>
     </div>
   );
